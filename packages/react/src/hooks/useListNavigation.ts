@@ -466,7 +466,7 @@ export function useListNavigation(
 
         waitForListPopulated();
       }
-    } else if (!isIndexOutOfListBounds(listRef, activeIndex)) {
+    } else if (!isIndexOutOfListBounds(listRef, activeIndex) || forceScrollIntoViewRef.current) {
       indexRef.current = activeIndex;
       focusItem();
       forceScrollIntoViewRef.current = false;
