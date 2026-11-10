@@ -28,6 +28,26 @@ function enableScrollLock() {
     window.innerWidth - document.documentElement.clientWidth;
   const scrollX = bodyStyle.left ? parseFloat(bodyStyle.left) : window.scrollX;
   const scrollY = bodyStyle.top ? parseFloat(bodyStyle.top) : window.scrollY;
+  const properties = [
+    'overflow',
+    'overflow-x',
+    'overflow-y',
+    scrollbarProperty,
+  ];
+
+  if (scrollbarWidth) {
+    properties.push(scrollbarX ? 'padding-left' : 'padding-right');
+  }
+
+  if (isIOS) {
+    properties.push('position', 'top', 'left', 'right');
+  }
+
+  const originalStyles = properties.map((property) => ({
+    property,
+    value: bodyStyle.getPropertyValue(property),
+    priority: bodyStyle.getPropertyPriority(property),
+  }));
 
   bodyStyle.overflow = 'hidden';
   bodyStyle.setProperty(scrollbarProperty, `${scrollbarWidth}px`);
@@ -52,19 +72,11 @@ function enableScrollLock() {
   }
 
   return () => {
-    Object.assign(bodyStyle, {
-      overflow: '',
-      [paddingProp]: '',
+    originalStyles.forEach(({property, value, priority}) => {
+      bodyStyle.setProperty(property, value, priority);
     });
-    bodyStyle.removeProperty(scrollbarProperty);
 
     if (isIOS) {
-      Object.assign(bodyStyle, {
-        position: '',
-        top: '',
-        left: '',
-        right: '',
-      });
       window.scrollTo({left: scrollX, top: scrollY, behavior: 'instant'});
     }
   };
